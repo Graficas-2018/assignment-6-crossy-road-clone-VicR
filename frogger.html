@@ -1,0 +1,49 @@
+<!--
+  Three.js Frogger Clone
+  Víctor Rendón Suárez | A01022462
+  25/10/2018
+-->
+<html>
+  <head>
+    <title>Three.js Frogger</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <link rel="stylesheet" href="../css/main.css" />
+
+    <script src="../libs/jquery-3.3.1/jquery-3.3.1.js"></script>
+    <script src="../libs/jquery-ui/jquery-ui.js"></script>
+    <script src="../libs/three.js/three.js"></script>
+    <script src="../libs/tween.js/tween.js"></script>
+    <script src="../libs/keyframe.js/keyframe.js"></script>
+    <script src="../libs/three.js/controls/OrbitControls.js"></script>
+
+    <script src="../libs/three.js/loaders/GLTFLoader.js"></script>
+
+    <script src="frogger.js"></script>
+
+    <script type="text/javascript">
+    	$(function() {
+    		var canvas = document.getElementById("webglcanvas");
+    		// create the scene
+    		createScene(canvas);
+        // Run the run loop
+        run();
+  		});
+    </script>
+  </head>
+
+  <body>
+    <div id="container">
+      <canvas id="webglcanvas" width=800 height=600></canvas>
+    	<div id="title">
+    		Three.js Frogger
+    	</div>
+    </div>
+
+    <div id="properties">
+      <!-- Use these controls to change properties
+      <div id="spot" class="colorSelector">Spot<div style="background-color: #00ff00"></div></div>
+      <div id="ambient" class="colorSelector">Ambient<div style="background-color: #00ff00"></div></div> -->
+    </div>
+  </body>
+</html>
