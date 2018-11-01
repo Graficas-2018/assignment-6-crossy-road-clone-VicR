@@ -33,7 +33,7 @@ function loadGLTF()
         horse = gltf.scene.children[ 0 ];
         horse.scale.set(0.02, 0.02, 0.02);
         horse.position.set(-83, -4, 0.4);
-        horse.rotation.set(0, Math.PI/2, 0)
+        horse.rotation.set(0, Math.PI/2, 0);
         horse.castShadow = true;
         horse. receiveShadow = true;
         scene.add( horse );
@@ -122,22 +122,26 @@ function keyPressed(e)
       scoreCSS = $("#score");
       scoreCSS.text("Score: " + score_count);
       camera.position.x += 2;
+      horse.rotation.y = Math.PI/2;
     }
   }
   else if (key == 'a'){
     if(!treeCollision(step, 'z', '-') && horse.position.z > -17.6){
       horse.position.z -= step;
+      horse.rotation.y = 91;
     }
   }
-  else if (key == 's'){
-    if(!treeCollision(step, 'x', '-') && horse.position.x > -83){
-      horse.position.x -= step;
-      camera.position.x -= 3;
-    }
+  else if (key == 's'){ // Removed backwards movement to make it harder
+    // if(!treeCollision(step, 'x', '-') && horse.position.x > -83){
+    //   horse.position.x -= step;
+    //   camera.position.x -= 3;
+    //   horse.rotation.y = Math.PI/2;
+    // }
   }
   else if (key == 'd'){
     if(!treeCollision(step, 'z', '+') && horse.position.z < 15.4){
       horse.position.z += step;
+      horse.rotation.y = 0;
     }
   }
 }
