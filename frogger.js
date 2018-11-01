@@ -34,15 +34,9 @@ function loadGLTF()
         horse.scale.set(0.02, 0.02, 0.02);
         horse.position.set(-83, -4, 0.4);
         horse.rotation.set(0, Math.PI/2, 0)
-        // horse.position.y -= 4;
-        // horse.position.z = -50 - Math.random() * 50;
         horse.castShadow = true;
         horse. receiveShadow = true;
         scene.add( horse );
-        // horse.add(camera);
-        // camera.position.set(4.6, 957, -1028);
-        // camera.rotation.set(-2.75, -0.1, -3.14);
-        // mixer.clipAction( gltf.animations[ 0 ], horse).setDuration( 1 ).play();
     } );
 
     // Load Cars
@@ -51,14 +45,9 @@ function loadGLTF()
     var material = new THREE.MeshBasicMaterial({ map: texture });
     var geometry = new THREE.CubeGeometry(2, 3, 5);
     // And put the geometry and material together into a mesh
-    car_positions = [-72, -62, -46, -36, -19, -13, 4, 14, 30, 39];
-    // car_positions = [-72, -62, -46, -36];
+    car_positions = [-72, -62, -46, -36, -19, -13, 4, 14, 30, 39, 55, 64, 81, 87];
     for(var i = 0; i < car_positions.length; i++) {
       cube = new THREE.Mesh(geometry, material);
-      // Move the mesh back from the camera and tilt it toward the viewer
-      // cube.position.y += -3;
-      // cube.position.x += 10;
-      // cube.position.z = -50 - Math.random() * 50;
       cube.position.set(car_positions[i], -2, 0.4);
       cube.castShadow = true;
       cube. receiveShadow = true;
@@ -73,17 +62,12 @@ function loadGLTF()
     var material = new THREE.MeshBasicMaterial({ map: texture });
     var geometry = new THREE.CubeGeometry(3, 10, 3);
     // And put the geometry and material together into a mesh
-    tree_positions = [-54, -29, -3, 22, 47, -54, -29, -3, 22, 47];
+    tree_positions = [-54, -29, -3, 22, 47, 95, -54, -29, -3, 22, 47, 73, 73, 95];
     for(var i = 0; i < tree_positions.length; i++) {
       cube = new THREE.Mesh(geometry, material);
-      // Move the mesh back from the camera and tilt it toward the viewer
-      // cube.position.y += -3;
-      // cube.position.x += 10;
-      // cube.position.z = -50 - Math.random() * 50;
-      cube.position.set(tree_positions[i], 0, getRandomInt(-20, 20));
+      cube.position.set(tree_positions[i], 0, getRandomInt(-25, 25));
       cube.castShadow = true;
       cube. receiveShadow = true;
-      // morphs.push(cube)
       trees.push(cube);
       scene.add( cube );
     }
@@ -107,7 +91,7 @@ function animate() {
 
     for(var morph of morphs)
     {
-        morph.position.z += 0.03 * deltat;
+        morph.position.z += 0.04 * deltat;
         if(morph.position.z > 40)
             morph.position.z = -70 - Math.random() * 50;
     }
@@ -122,8 +106,6 @@ function run() {
         // Spin the cube for next frame
         animate();
 
-        // Update the camera controller
-        // orbitControls.update();
         if(inGame && horse != null){
           checkCarCollision();
         }
@@ -132,28 +114,29 @@ function run() {
 function keyPressed(e)
 {
   var key = e.key.toLowerCase();
-  var step = 3;
+  var step = 2;
   if (key == 'w'){
-    if(!treeCollision(step, 'x', '+')){
+    if(!treeCollision(step, 'x', '+') && horse.position.z > -83){
       horse.position.x += step;
       score_count += 1;
       scoreCSS = $("#score");
       scoreCSS.text("Score: " + score_count);
-      camera.position.x += 5;
+      camera.position.x += 2;
     }
   }
   else if (key == 'a'){
-    if(!treeCollision(step, 'z', '-')){
+    if(!treeCollision(step, 'z', '-') && horse.position.z > -17.6){
       horse.position.z -= step;
     }
   }
   else if (key == 's'){
-    if(!treeCollision(step, 'x', '-')){
+    if(!treeCollision(step, 'x', '-') && horse.position.x > -83){
       horse.position.x -= step;
+      camera.position.x -= 3;
     }
   }
   else if (key == 'd'){
-    if(!treeCollision(step, 'z', '+')){
+    if(!treeCollision(step, 'z', '+') && horse.position.z < 15.4){
       horse.position.z += step;
     }
   }
@@ -166,15 +149,18 @@ function checkCarCollision()
     var carbox = new THREE.Box3().setFromObject(cars[i]);
 
     if (horsebox.intersectsBox(carbox)){
-      console.log('COLLISION');
-      // debugger;
+      console.log('CAR COLLISION');
+      horse.position.set(-83, -4, 0.4);
+      camera.position.set(-120, 16.7, 0.8);
+      score_count = 0
+      scoreCSS.text("Score: " + score_count);
     }
   }
 }
 
 function treeCollision(step, pos, op)
 {
-  var c_horse = horse;
+  var c_horse = horse.clone();
   if (pos == 'x'){
     if (op == '+'){
       c_horse.position.x += step;
@@ -191,11 +177,9 @@ function treeCollision(step, pos, op)
   for (var i = 0; i < trees.length; i++) {
     var horsebox = new THREE.Box3().setFromObject(c_horse);
     var treebox = new THREE.Box3().setFromObject(trees[i]);
-    // debugger;
 
     if (horsebox.intersectsBox(treebox)){
       console.log('TREE COLLISION');
-      // debugger;
       return true;
     }
   }
@@ -228,11 +212,9 @@ function createScene(canvas) {
 
     // Add  a camera so we can view the scene
     camera = new THREE.PerspectiveCamera( 45, canvas.width / canvas.height, 1, 4000 );
-    camera.position.set(-115, 16.7, 0.8);
+    camera.position.set(-120, 16.7, 0.8);
     camera.rotation.set(-1.5, -1.3, -1.5);
     // scene.add(camera);
-
-    orbitControls = new THREE.OrbitControls(camera, renderer.domElement);
 
     // Create a group to hold all the objects
     root = new THREE.Object3D;
@@ -243,9 +225,9 @@ function createScene(canvas) {
       d: new KF.KeyFrameAnimator
     }
     spotLight = new THREE.SpotLight (0xffffff);
-    spotLight.position.set(-100, 17, -10);
+    spotLight.position.set(-150, 50, -10);
     spotLight.target.position.set(-2, 0, -2);
-    // root .add(spotLight);
+    root.add(spotLight);
 
     spotLight.castShadow = true;
 
