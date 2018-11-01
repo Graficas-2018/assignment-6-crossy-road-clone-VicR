@@ -10,12 +10,16 @@ root = null,
 horse = null,
 group = null,
 orbitControls = null,
-mixer = null;
+mixer = null,
+score_count = null,
+scoreCSS = null,
+camstep = null;
 
 var inGame = false;
 
 var morphs = [],
-    cars = [];
+    cars = [],
+    trees = [];
 
 var duration = 20000; // ms
 var currentTime = Date.now();
@@ -35,27 +39,60 @@ function loadGLTF()
         horse.castShadow = true;
         horse. receiveShadow = true;
         scene.add( horse );
+        // horse.add(camera);
+        // camera.position.set(4.6, 957, -1028);
+        // camera.rotation.set(-2.75, -0.1, -3.14);
         // mixer.clipAction( gltf.animations[ 0 ], horse).setDuration( 1 ).play();
     } );
 
+    // Load Cars
     var textureUrl = "../images/car.png";
     var texture = new THREE.TextureLoader().load(textureUrl);
     var material = new THREE.MeshBasicMaterial({ map: texture });
     var geometry = new THREE.CubeGeometry(2, 3, 5);
     // And put the geometry and material together into a mesh
-    for(var i = 10; i <= 20; i+=10) {
+    car_positions = [-72, -62, -46, -36, -19, -13, 4, 14, 30, 39];
+    // car_positions = [-72, -62, -46, -36];
+    for(var i = 0; i < car_positions.length; i++) {
       cube = new THREE.Mesh(geometry, material);
       // Move the mesh back from the camera and tilt it toward the viewer
       // cube.position.y += -3;
       // cube.position.x += 10;
       // cube.position.z = -50 - Math.random() * 50;
-      cube.position.set(-(i+52), -2, 0.4);
+      cube.position.set(car_positions[i], -2, 0.4);
       cube.castShadow = true;
       cube. receiveShadow = true;
       morphs.push(cube);
       cars.push(cube);
       scene.add( cube );
     }
+
+    // Load Trees
+    var textureUrl = "../images/tree.jpeg";
+    var texture = new THREE.TextureLoader().load(textureUrl);
+    var material = new THREE.MeshBasicMaterial({ map: texture });
+    var geometry = new THREE.CubeGeometry(3, 10, 3);
+    // And put the geometry and material together into a mesh
+    tree_positions = [-54, -29, -3, 22, 47, -54, -29, -3, 22, 47];
+    for(var i = 0; i < tree_positions.length; i++) {
+      cube = new THREE.Mesh(geometry, material);
+      // Move the mesh back from the camera and tilt it toward the viewer
+      // cube.position.y += -3;
+      // cube.position.x += 10;
+      // cube.position.z = -50 - Math.random() * 50;
+      cube.position.set(tree_positions[i], 0, getRandomInt(-20, 20));
+      cube.castShadow = true;
+      cube. receiveShadow = true;
+      // morphs.push(cube)
+      trees.push(cube);
+      scene.add( cube );
+    }
+}
+
+function getRandomInt(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
 }
 
 function animate() {
@@ -95,17 +132,30 @@ function run() {
 function keyPressed(e)
 {
   var key = e.key.toLowerCase();
+  var step = 3;
   if (key == 'w'){
-    horse.position.x += 3;
+    if(!treeCollision(step, 'x', '+')){
+      horse.position.x += step;
+      score_count += 1;
+      scoreCSS = $("#score");
+      scoreCSS.text("Score: " + score_count);
+      camera.position.x += 5;
+    }
   }
   else if (key == 'a'){
-    horse.position.z -= 3;
+    if(!treeCollision(step, 'z', '-')){
+      horse.position.z -= step;
+    }
   }
   else if (key == 's'){
-    horse.position.x -= 3;
+    if(!treeCollision(step, 'x', '-')){
+      horse.position.x -= step;
+    }
   }
   else if (key == 'd'){
-    horse.position.z += 3;
+    if(!treeCollision(step, 'z', '+')){
+      horse.position.z += step;
+    }
   }
 }
 
@@ -117,6 +167,36 @@ function checkCarCollision()
 
     if (horsebox.intersectsBox(carbox)){
       console.log('COLLISION');
+      // debugger;
+    }
+  }
+}
+
+function treeCollision(step, pos, op)
+{
+  var c_horse = horse;
+  if (pos == 'x'){
+    if (op == '+'){
+      c_horse.position.x += step;
+    } else {
+      c_horse.position.x -= step;
+    }
+  } else {
+    if (op == '+'){
+      c_horse.position.z += step;
+    } else {
+      c_horse.position.z -= step;
+    }
+  }
+  for (var i = 0; i < trees.length; i++) {
+    var horsebox = new THREE.Box3().setFromObject(c_horse);
+    var treebox = new THREE.Box3().setFromObject(trees[i]);
+    // debugger;
+
+    if (horsebox.intersectsBox(treebox)){
+      console.log('TREE COLLISION');
+      // debugger;
+      return true;
     }
   }
 }
@@ -150,9 +230,9 @@ function createScene(canvas) {
     camera = new THREE.PerspectiveCamera( 45, canvas.width / canvas.height, 1, 4000 );
     camera.position.set(-115, 16.7, 0.8);
     camera.rotation.set(-1.5, -1.3, -1.5);
-    scene.add(camera);
+    // scene.add(camera);
 
-    // orbitControls = new THREE.OrbitControls(camera, renderer.domElement);
+    orbitControls = new THREE.OrbitControls(camera, renderer.domElement);
 
     // Create a group to hold all the objects
     root = new THREE.Object3D;
